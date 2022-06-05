@@ -79,6 +79,22 @@ body{
   margin: 5px;
 }
 
+.load-more{
+  width: 100px;
+  height: 40px;
+  font-size: 16px;
+  border: none;
+  border-top-right-radius: 2px;
+  border-bottom-right-radius: 15px;
+  cursor: pointer;
+  transition: background-color 300ms linear, color 300ms linear;
+  &:hover,
+  &:focus {
+    background-color: #691963;
+    color: #ffffff;
+  }
+}
+
 .is-hidden {
   display: none;
 }

@@ -14,7 +14,7 @@ const per_page = 40;
 let searchQery = null;
 
 searchForm.addEventListener('submit', onSearch);
-// loadMoreBtn.addEventListener('click', onLoadMore);
+loadMoreBtn.addEventListener('click', onLoadMore);
 
 async function onSearch(e) {
   e.preventDefault();
@@ -32,7 +32,7 @@ async function onSearch(e) {
     Notify.failure('Sorry, there are no images matching your search query. Please try again.');
   }
   appendImagesMarkup(images);
-//   loadMoreBtn.classList.remove('is-hidden');
+  loadMoreBtn.classList.remove('is-hidden');
 }
 
 async function onLoadMore(e) {
