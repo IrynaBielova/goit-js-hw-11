@@ -1,11 +1,9 @@
-const axios = require('axios').default;
-export default async function fetchImages(name, page, per_page) {
-  try {
-    const response = await axios.get(
-      `https://pixabay.com/api/?key=27697316-9cc45c303ea5cb91afbaa3e72&q=${name}&page=${page}&per_page=${per_page}&image_type=photo&orientation=horizontal&safesearch=true`,
-    );
-    return response;
-  } catch (error) {
-    console.error(error);
-  }
+import axios from 'axios';
+
+export default async function fetchImages(value, page) {
+  const url = 'https://pixabay.com/api/';
+  const key = '27714328-f8800d5e9a5f7cfa6f85a6657';
+  const filter = `?key=${key}&q=${value}&image_type=photo&orientation=horizontal&safesearch=true&per_page=40&page=${page}`;
+
+  return await axios.get(`${url}${filter}`).then(response => response.data);
 }

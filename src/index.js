@@ -1,60 +1,93 @@
 import './sass/main.scss';
 import fetchImages from './js/image.js';
-import imageMarkup from './tempelates/images.hbs';
+import cardTemplate from './tempelates/images.hbs';
+import { Notify } from 'notiflix/build/notiflix-notify-aio';
 import SimpleLightbox from 'simplelightbox';
 import 'simplelightbox/dist/simple-lightbox.min.css';
-import { Notify } from 'notiflix';
 
-const searchForm = document.querySelector('.search-form');
-const gallery = document.querySelector('.gallery');
-const loadMoreBtn = document.querySelector('.load-more');
+const { searchForm, gallery, loadMoreBtn, endCollectionText } = {
+  searchForm: document.querySelector('.search-form'),
+  gallery: document.querySelector('.gallery'),
+  loadMoreBtn: document.querySelector('.load-more'),
+  endCollectionText: document.querySelector('.end-collection-text'),
+};
 
-let page = 1;
-const per_page = 40;
-let searchQery = null;
-
-searchForm.addEventListener('submit', onSearch);
-loadMoreBtn.addEventListener('click', onLoadMore);
-
-async function onSearch(e) {
-  e.preventDefault();
-  gallery.innerHTML = '';
-  searchQery = e.currentTarget.searchQuery.value;
-  console.log(searchQery);
-  page = 1;
-  const response = await fetchImages(searchQery, page, per_page);
-  const images = response.data.hits;
-  const totalImages = response.data.totalHits;
-
-  if (images.length > 0) {
-    Notify.success(`Hooray! We found ${totalImages} images.`);
-  } else {
-    Notify.failure('Sorry, there are no images matching your search query. Please try again.');
-  }
-  appendImagesMarkup(images);
-  loadMoreBtn.classList.remove('is-hidden');
+function renderCardImage(arr) {
+  gallery.insertAdjacentHTML('beforeend', cardTemplate(arr));
 }
 
-async function onLoadMore(e) {
-  const response = await fetchImages(searchQery, page, per_page);
-  const images = response.data.hits;
-  const totalImages = response.data.totalHits;
-  const totalPages = page * per_page;
-  if (totalImages <= totalPages) {
-    Notify.info("We're sorry, but you've reached the end of search results.");
+let lightbox = new SimpleLightbox('.photo-card a', {
+  captions: true,
+  captionsData: 'alt',
+  captionDelay: 250,
+});
+
+let currentPage = 1;
+let currentHits = 0;
+let searchQuery = '';
+
+searchForm.addEventListener('submit', onSubmitSearchForm);
+
+async function onSubmitSearchForm(e) {
+  e.preventDefault();
+  searchQuery = e.currentTarget.searchQuery.value;
+  currentPage = 1;
+
+  if (searchQuery === '') {
+    return;
+  }
+
+  const response = await fetchImages(searchQuery, currentPage);
+  currentHits = response.hits.length;
+
+  if (response.totalHits > 40) {
+    loadMoreBtn.classList.remove('is-hidden');
+  } else {
     loadMoreBtn.classList.add('is-hidden');
   }
-  appendImagesMarkup(images);
-  page += 1;
-  console.log(page);
+
+  try {
+    if (response.totalHits > 0) {
+      Notify.success(`Hooray! We found ${response.totalHits} images.`);
+      gallery.innerHTML = '';
+      renderCardImage(response.hits);
+      lightbox.refresh();
+      endCollectionText.classList.add('is-hidden');
+
+      const { height: cardHeight } = document
+        .querySelector('.gallery')
+        .firstElementChild.getBoundingClientRect();
+
+      window.scrollBy({
+        top: cardHeight * 2,
+        behavior: 'smooth',
+      });
+    }
+
+    if (response.totalHits === 0) {
+      gallery.innerHTML = '';
+      Notify.failure(
+        'Sorry, there are no images matching your search query. Please try again.'
+      );
+      loadMoreBtn.classList.add('is-hidden');
+      endCollectionText.classList.add('is-hidden');
+    }
+  } catch (error) {
+    console.log(error);
+  }
 }
 
-function appendImagesMarkup(images) {
-  gallery.insertAdjacentHTML('beforeend', imageMarkup(images));
+loadMoreBtn.addEventListener('click', onClickLoadMoreBtn);
 
-  const lightbox = new SimpleLightbox('.gallery a', {
-    captionsData: 'alt',
-    captionDelay: 250,
-    close: false,
-  });
+async function onClickLoadMoreBtn() {
+  currentPage += 1;
+  const response = await fetchImages(searchQuery, currentPage);
+  renderCardImage(response.hits);
+  lightbox.refresh();
+  currentHits += response.hits.length;
+
+  if (currentHits === response.totalHits) {
+    loadMoreBtn.classList.add('is-hidden');
+    endCollectionText.classList.remove('is-hidden');
+  }
 }
