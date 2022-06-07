@@ -7,8 +7,12 @@
   align-items: center;
   justify-content: center;
   padding: 25px 0 25px 0;
-  background: rgb(18, 29, 185);
+  background: #380cb1;
   box-shadow: 0px 3px 5px 0px rgba(8, 72, 83, 0.5);
+}
+
+.is-hidden_form{
+  background: transparent;
 }
 
 .search-input{
@@ -37,8 +41,8 @@
   transition: background-color 300ms linear, color 300ms linear;
   &:hover,
   &:focus {
-    background-color: #691963;
-    color: #ffffff;
+    background-color: #9ad3e6;
+    color: #380cb1;
   }
 }
 
@@ -90,8 +94,8 @@ body{
   transition: background-color 300ms linear, color 300ms linear;
   &:hover,
   &:focus {
-    background-color: #691963;
-    color: #ffffff;
+    background-color: #9ad3e6;
+    color: #380cb1;
   }
 }
 
